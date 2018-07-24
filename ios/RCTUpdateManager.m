@@ -55,6 +55,11 @@ static NSString *const DownloadProgressEvent = @"CodePushDownloadProgress";
     return [self sharedInstance];
 }
 
++ (BOOL) requiresMainQueueSetup
+{
+    return YES;
+}
+
 - (id)copy {
     return [[RCTUpdateManager alloc] init];
 }
