@@ -18,7 +18,6 @@
 		BA1677C91E077ECD00E7F9BE /* prng.c in Sources */ = {isa = PBXBuildFile; fileRef = BA1677A51E07759D00E7F9BE /* prng.c */; };
 		BA1677CB1E077ECD00E7F9BE /* pwd2key.c in Sources */ = {isa = PBXBuildFile; fileRef = BA1677A71E07759D00E7F9BE /* pwd2key.c */; };
 		BA1677CD1E077ECD00E7F9BE /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = BA1677A91E07759D00E7F9BE /* sha1.c */; };
-		BA1677D01E077ECD00E7F9BE /* Info.plist in Sources */ = {isa = PBXBuildFile; fileRef = BA1677AC1E07759D00E7F9BE /* Info.plist */; };
 		BA1677D21E077ECD00E7F9BE /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = BA1677AF1E07759D00E7F9BE /* ioapi.c */; };
 		BA1677D41E077ECD00E7F9BE /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = BA1677B11E07759D00E7F9BE /* mztools.c */; };
 		BA1677D61E077ECD00E7F9BE /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = BA1677B31E07759D00E7F9BE /* unzip.c */; };
@@ -66,7 +65,6 @@
 		BA1677A91E07759D00E7F9BE /* sha1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sha1.c; sourceTree = "<group>"; };
 		BA1677AA1E07759D00E7F9BE /* sha1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
 		BA1677AB1E07759D00E7F9BE /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
-		BA1677AC1E07759D00E7F9BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BA1677AE1E07759D00E7F9BE /* crypt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypt.h; sourceTree = "<group>"; };
 		BA1677AF1E07759D00E7F9BE /* ioapi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ioapi.c; sourceTree = "<group>"; };
 		BA1677B01E07759D00E7F9BE /* ioapi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ioapi.h; sourceTree = "<group>"; };
@@ -117,7 +115,6 @@
 			children = (
 				BA1677951E07759D00E7F9BE /* aes */,
 				BA1677AB1E07759D00E7F9BE /* Common.h */,
-				BA1677AC1E07759D00E7F9BE /* Info.plist */,
 				BA1677AD1E07759D00E7F9BE /* minizip */,
 				BA1677B71E07759D00E7F9BE /* SSZipArchive.h */,
 				BA1677B81E07759D00E7F9BE /* SSZipArchive.m */,
@@ -238,7 +235,6 @@
 				BA1677C91E077ECD00E7F9BE /* prng.c in Sources */,
 				BA1677CB1E077ECD00E7F9BE /* pwd2key.c in Sources */,
 				BA1677CD1E077ECD00E7F9BE /* sha1.c in Sources */,
-				BA1677D01E077ECD00E7F9BE /* Info.plist in Sources */,
 				BA1677D21E077ECD00E7F9BE /* ioapi.c in Sources */,
 				BA1677D41E077ECD00E7F9BE /* mztools.c in Sources */,
 				BA1677D61E077ECD00E7F9BE /* unzip.c in Sources */,
@@ -337,7 +333,7 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../ios/Pods/Headers/Public/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
