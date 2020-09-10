@@ -84,10 +84,10 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
     private static String APPID = "undefined";
     private static String APPNAME = "undefined";
     private static String CHECK_HOST = "/";
-    private static String FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + APPNAME;
-    private static String LAST_JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + "js_bundle";
-    private static String JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + ".js_bundle";
-    private static String APK_SAVED_LOCAL_PATH = FILE_BASE_PATH + File.separator + "download_apk";
+    private static String FILE_BASE_PATH = "";
+    private static String LAST_JS_BUNDLE_LOCAL_PATH = "";
+    private static String JS_BUNDLE_LOCAL_PATH = "";
+    private static String APK_SAVED_LOCAL_PATH = "";
 
     private static final String REACT_APPLICATION_CLASS_NAME = "com.facebook.react.ReactApplication";
     private static final String REACT_NATIVE_HOST_CLASS_NAME = "com.facebook.react.ReactNativeHost";
@@ -126,8 +126,22 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
         APPID = appId;
         APPNAME = appName;
         CHECK_HOST = checkHost;
-//        FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + APPNAME;
-        FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + application.getPackageName();
+
+        // NOTE: fix android 10 文件不允许随意创建文件夹
+        int version = android.os.Build.VERSION.SDK_INT;
+        if(version < 30){
+            FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + application.getPackageName();
+        }else{
+            File path = application.getApplicationContext().getExternalFilesDir("");
+            FILE_BASE_PATH = path.toString();
+        }
+
+        // check FILE_BASE_PATH exist
+        File file = new File(FILE_BASE_PATH);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
         LAST_JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + "js_bundle";
         JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + ".js_bundle";
         APK_SAVED_LOCAL_PATH = FILE_BASE_PATH + File.separator + "download_apk";
@@ -465,10 +479,15 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
                 }
 
             }
-        } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
+        } catch(Exception error){
+            if (httpConnection != null) {
+                httpConnection.disconnect();
+            }
+            throw error;
+        } finally {
             if (is != null) {
                 is.close();
             }
