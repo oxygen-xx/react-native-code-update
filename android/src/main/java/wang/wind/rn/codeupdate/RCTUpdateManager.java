@@ -544,15 +544,15 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
                 }
 
             }
-            if (httpConnection != null) {
-                httpConnection.disconnect();
+            if (connection != null) {
+                connection.disconnect();
             }
         } catch(Exception exception){
             exception.printStackTrace();
-            if (httpConnection != null) {
-                httpConnection.disconnect();
+            if (connection != null) {
+                connection.disconnect();
             }
-            throw error;
+            throw exception;
         } finally {
             if (connection != null) {
                 connection.disconnect();
