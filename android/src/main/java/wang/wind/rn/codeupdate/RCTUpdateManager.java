@@ -46,6 +46,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -54,8 +55,13 @@ import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
+import javax.net.ssl.HttpsURLConnection;
+
+import wang.wind.rn.codeupdate.DownloadUtil;
+
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.client.params.ClientPNames;
+//import okhttp3.internal.huc.DelegatingHttpsURLConnection;
 
 /**
  * Created by wangduo on 2016/12/16.
@@ -84,10 +90,10 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
     private static String APPID = "undefined";
     private static String APPNAME = "undefined";
     private static String CHECK_HOST = "/";
-    private static String FILE_BASE_PATH = "";
-    private static String LAST_JS_BUNDLE_LOCAL_PATH = "";
-    private static String JS_BUNDLE_LOCAL_PATH = "";
-    private static String APK_SAVED_LOCAL_PATH = "";
+    private static String FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + APPNAME;
+    private static String LAST_JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + "js_bundle";
+    private static String JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + ".js_bundle";
+    private static String APK_SAVED_LOCAL_PATH = FILE_BASE_PATH + File.separator + "download_apk";
 
     private static final String REACT_APPLICATION_CLASS_NAME = "com.facebook.react.ReactApplication";
     private static final String REACT_NATIVE_HOST_CLASS_NAME = "com.facebook.react.ReactNativeHost";
@@ -126,8 +132,8 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
         APPID = appId;
         APPNAME = appName;
         CHECK_HOST = checkHost;
-
-        // NOTE: fix android 10 文件不允许随意创建文件夹
+//        FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + APPNAME;
+// NOTE: fix android 10 文件不允许随意创建文件夹
         int version = android.os.Build.VERSION.SDK_INT;
         if(version < 30){
             FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + application.getPackageName();
@@ -194,7 +200,15 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
             }
             saveFile = new File(saveFileName);
             try {
-                downloadUpdateFile(update.getDownloadUrl(), saveFile);
+                String downloadUrl = update.getDownloadUrl();
+                // TEST: 测试使用
+                // downloadUrl = "https://cdn.yimei360.cn/genecell/app_packages/306/skins_0.3.3_1603939384.apk";
+
+                if(downloadUrl.contains("https")){
+                    downloadUpdateFileWithHttps(downloadUrl, saveFile);
+                }else{
+                    downloadUpdateFile(downloadUrl, saveFile);
+                }
             } catch (Exception e) {
                 mHandler.sendEmptyMessage(0);
                 e.printStackTrace();
@@ -399,43 +413,94 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
                 "&js_version_code=" + bundleVersionCode, mCheckUpdateHandle);
     }
 
-    public long downloadUpdateFile(String downloadUrl, File saveFile)
-            throws Exception {
+    public void downloadUpdateFileWithHttps(String downloadUrl, File saveFile) throws Exception{
+        DownloadUtil.get().download(downloadUrl, saveFile, new DownloadUtil.OnDownloadListener() {
+            @Override
+            public void onDownloadSuccess(File file) throws IOException {
+                if (downLoadThread != null && !downLoadThread.isInterrupted()) {
+                    downLoadThread.interrupt();
+                }
+
+                if (update.getUpdateType() == 2) {
+                    if (file.getAbsolutePath().endsWith(".zip")) {
+                        ZipUtils.unZipFile(file.getAbsolutePath(), JS_BUNDLE_LOCAL_PATH);
+                    }
+                    setJsBundlePath(JS_BUNDLE_LOCAL_PATH + File.separator + JS_BUNDLE_LOCAL_FILE, mContext);
+                    setJsBundleVersionCode(update.getJsBundleVersionCode(), mContext);
+                    setUpdatedAppVersionCode(pInfo.versionCode, mContext);
+                    mHandler.sendEmptyMessage(2);
+                } else {
+                    File apkFile = file;
+                    if (apkFile.exists()) {
+                        setJsBundlePath(null, mContext);
+                        setUpdatedAppVersionCode(0, mContext);
+                        setJsBundleVersionCode(0, mContext);
+                        installAPK(getReactApplicationContext(), apkFile);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onDownloading(long progress, long total) {
+                Log.d(TAG,"progress is:"+progress+"%");
+//                if ((downloadCount == 0) || (int) (totalSize * 100 / updateTotalSize) - 5 >= downloadCount) {
+//                    downloadCount += 5;
+//                }
+                if (update.getUpdateType() == 1 || update.getUpdateType() == 2) {
+                    // 更新进度
+                    Message msg = mHandler.obtainMessage();
+                    msg.what = 1;
+                    msg.arg1 = (int)(progress);
+                    mHandler.sendMessage(msg);
+
+                }
+            }
+
+            @Override
+            public void onDownloadFailed() {
+                Log.d(TAG,"下载失败");
+                if (callback != null) {
+                    callback.invoke();
+                    callback = null;
+                }
+            }
+        });
+    }
+
+    public long downloadUpdateFile(String downloadUrl, File saveFile) throws Exception {
 
         int downloadCount = 0;
         int currentSize = 0;
         long totalSize = 0;
         int updateTotalSize = 0;
+        HttpURLConnection connection = null;
 
-        HttpURLConnection httpConnection = null;
         InputStream is = null;
         FileOutputStream fos = null;
 
         try {
             URL url = new URL(downloadUrl);
-            httpConnection = (HttpURLConnection) url.openConnection();
-            httpConnection
-                    .setRequestProperty("User-Agent", "PacificHttpClient");
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "PacificHttpClient");
             if (currentSize > 0) {
-                httpConnection.setRequestProperty("RANGE", "bytes="
-                        + currentSize + "-");
+                connection.setRequestProperty("RANGE", "bytes=" + currentSize + "-");
             }
-            httpConnection.setConnectTimeout(10000);
-            httpConnection.setReadTimeout(20000);
-            updateTotalSize = httpConnection.getContentLength();
-            if (httpConnection.getResponseCode() == 404) {
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(20000);
+            updateTotalSize = connection.getContentLength();
+            if (connection.getResponseCode() == 404) {
                 throw new Exception("fail!");
             }
-            is = httpConnection.getInputStream();
+            is = connection.getInputStream();
             fos = new FileOutputStream(saveFile, false);
             byte buffer[] = new byte[1024];
-            int readsize = 0;
-            while (!downLoadThread.isInterrupted() && (readsize = is.read(buffer)) > 0) {
-                fos.write(buffer, 0, readsize);
-                totalSize += readsize;
+            int readSize = 0;
+            while (!downLoadThread.isInterrupted() && (readSize = is.read(buffer)) > 0) {
+                fos.write(buffer, 0, readSize);
+                totalSize += readSize;
                 // 为了防止频繁的通知导致应用吃紧，百分比增加10才通知一次
-                if ((downloadCount == 0)
-                        || (int) (totalSize * 100 / updateTotalSize) - 5 >= downloadCount) {
+                if ((downloadCount == 0) || (int) (totalSize * 100 / updateTotalSize) - 5 >= downloadCount) {
                     downloadCount += 5;
                     if (update.getUpdateType() == 1 || update.getUpdateType() == 2) {
                         // 更新进度
@@ -470,24 +535,28 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
                 setUpdatedAppVersionCode(pInfo.versionCode, mContext);
                 mHandler.sendEmptyMessage(2);
             } else {
-                File apkfile = saveFile;
-                if (apkfile.exists()) {
+                File apkFile = saveFile;
+                if (apkFile.exists()) {
                     setJsBundlePath(null, mContext);
                     setUpdatedAppVersionCode(0, mContext);
                     setJsBundleVersionCode(0, mContext);
-                    installAPK(getReactApplicationContext(), apkfile);
+                    installAPK(getReactApplicationContext(), apkFile);
                 }
 
             }
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
-        } catch(Exception error){
+        } catch(Exception exception){
+            exception.printStackTrace();
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
             throw error;
         } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
             if (is != null) {
                 is.close();
             }
