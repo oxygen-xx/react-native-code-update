@@ -54,6 +54,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -128,7 +130,7 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
             return null;
         }
     }
-    public static void init(String appName, String appId, String checkHost, Application application) {
+    public static void init(final String appName, final String appId, final String checkHost, final Application application) {
         APPID = appId;
         APPNAME = appName;
         CHECK_HOST = checkHost;
@@ -139,6 +141,16 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
             FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + application.getPackageName();
         }else{
             File path = application.getApplicationContext().getExternalFilesDir("");
+            if(path == null){
+                // https://developer.android.com/reference/android/content/Context.html#getExternalFilesDir(java.lang.String)
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        init(appName, appId, checkHost, application);
+                    }
+                }, 500);
+                return;
+            }
             FILE_BASE_PATH = path.toString();
         }
 
