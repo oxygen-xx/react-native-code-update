@@ -54,8 +54,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -130,7 +128,7 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
             return null;
         }
     }
-    public static void init(final String appName, final String appId, final String checkHost, final Application application) {
+    public static void init(String appName, String appId, String checkHost, Application application) {
         APPID = appId;
         APPNAME = appName;
         CHECK_HOST = checkHost;
@@ -141,28 +139,43 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
             FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + application.getPackageName();
         }else{
             File path = application.getApplicationContext().getExternalFilesDir("");
-            if(path == null){
-                // https://developer.android.com/reference/android/content/Context.html#getExternalFilesDir(java.lang.String)
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        init(appName, appId, checkHost, application);
-                    }
-                }, 500);
-                return;
-            }
             FILE_BASE_PATH = path.toString();
         }
 
         // check FILE_BASE_PATH exist
         File file = new File(FILE_BASE_PATH);
-        if (!file.exists()) {
+        boolean isFileExist = file.exists();
+        if (!isFileExist) {
             file.mkdirs();
         }
 
         LAST_JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + "js_bundle";
         JS_BUNDLE_LOCAL_PATH = FILE_BASE_PATH + File.separator + ".js_bundle";
         APK_SAVED_LOCAL_PATH = FILE_BASE_PATH + File.separator + "download_apk";
+
+        File last_bundle_path = new File(LAST_JS_BUNDLE_LOCAL_PATH);
+        boolean is_last_bundle_path_exist = last_bundle_path.exists();
+        if (!is_last_bundle_path_exist) {
+            last_bundle_path.mkdirs();
+        }
+
+        File bundle_path = new File(JS_BUNDLE_LOCAL_PATH);
+        boolean is_bundle_path_exist = bundle_path.exists();
+        if (!is_bundle_path_exist) {
+            bundle_path.mkdirs();
+        }
+
+        File apk_saved_path = new File(APK_SAVED_LOCAL_PATH);
+        boolean is_apk_path_exist = bundle_path.exists();
+        if (!is_apk_path_exist) {
+            apk_saved_path.mkdirs();
+        }
+
+//        Log.d(TAG, "LAST_JS_BUNDLE_LOCAL_PATH:" + LAST_JS_BUNDLE_LOCAL_PATH);
+//        Log.d(TAG, "JS_BUNDLE_LOCAL_PATH:" + JS_BUNDLE_LOCAL_PATH);
+//        Log.d(TAG, "APK_SAVED_LOCAL_PATH:" + APK_SAVED_LOCAL_PATH);
+//        Log.d(TAG, ".jsbundle, jsbundle, apk_download => " + bundle_path.exists() + "," + last_bundle_path.exists() + "," + apk_saved_path.exists());
+
         mClient = new AsyncHttpClient();
         mClient.addHeader("Accept-Language", Locale.getDefault().toString());
         mClient.addHeader("Host", checkHost.replace("https://",""));
