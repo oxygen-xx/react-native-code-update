@@ -135,10 +135,11 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
 //        FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + APPNAME;
 // NOTE: fix android 10 文件不允许随意创建文件夹
         int version = android.os.Build.VERSION.SDK_INT;
-        if(version < 30){
+        int android10VersionCode = Build.VERSION_CODES.Q;
+        if(version < android10VersionCode){
             FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + application.getPackageName();
         }else{
-            File path = application.getApplicationContext().getExternalFilesDir("");
+            File path = application.getApplicationContext().getExternalFilesDir(null);
             FILE_BASE_PATH = path.toString();
         }
 
@@ -155,26 +156,28 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
 
         File last_bundle_path = new File(LAST_JS_BUNDLE_LOCAL_PATH);
         boolean is_last_bundle_path_exist = last_bundle_path.exists();
+        boolean last_bool = true;
         if (!is_last_bundle_path_exist) {
-            last_bundle_path.mkdirs();
+            last_bool = last_bundle_path.mkdirs();
         }
 
         File bundle_path = new File(JS_BUNDLE_LOCAL_PATH);
         boolean is_bundle_path_exist = bundle_path.exists();
+        boolean bundle_bool = true;
         if (!is_bundle_path_exist) {
-            bundle_path.mkdirs();
+            bundle_bool = bundle_path.mkdirs();
         }
 
         File apk_saved_path = new File(APK_SAVED_LOCAL_PATH);
         boolean is_apk_path_exist = bundle_path.exists();
+        boolean apk_bool = true;
         if (!is_apk_path_exist) {
-            apk_saved_path.mkdirs();
+            apk_bool = apk_saved_path.mkdirs();
         }
 
-//        Log.d(TAG, "LAST_JS_BUNDLE_LOCAL_PATH:" + LAST_JS_BUNDLE_LOCAL_PATH);
-//        Log.d(TAG, "JS_BUNDLE_LOCAL_PATH:" + JS_BUNDLE_LOCAL_PATH);
-//        Log.d(TAG, "APK_SAVED_LOCAL_PATH:" + APK_SAVED_LOCAL_PATH);
-//        Log.d(TAG, ".jsbundle, jsbundle, apk_download => " + bundle_path.exists() + "," + last_bundle_path.exists() + "," + apk_saved_path.exists());
+//        Log.d(TAG, "LAST_JS_BUNDLE_LOCAL_PATH:" + LAST_JS_BUNDLE_LOCAL_PATH + "," + "is_exist: " + last_bundle_path.exists() + "," + "create_status:" + last_bool + ";");
+//        Log.d(TAG, "JS_BUNDLE_LOCAL_PATH:" + JS_BUNDLE_LOCAL_PATH + "," + "is_exist: " + bundle_path.exists() + "," + "create_status:" + bundle_bool + ";");
+//        Log.d(TAG, "APK_SAVED_LOCAL_PATH:" + APK_SAVED_LOCAL_PATH + "," + "is_exist: " + apk_saved_path.exists() + "," + "create_status:" + apk_bool + ";");
 
         mClient = new AsyncHttpClient();
         mClient.addHeader("Accept-Language", Locale.getDefault().toString());
