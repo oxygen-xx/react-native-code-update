@@ -13,6 +13,7 @@ public class VersionUpdate {
     private String errorMsg;
     private int updateType=0; // 0无更新 1 apk更新  2 jsbundle 更新
     private String downloadUrl;
+    private String title; // 更新标题
     private String versionName;
     private int versionCode;
     private String jsBundleVersion;
@@ -84,6 +85,14 @@ public class VersionUpdate {
 
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String newTitle) {
+        this.title = title;
     }
 
     public String getVersionName() {
