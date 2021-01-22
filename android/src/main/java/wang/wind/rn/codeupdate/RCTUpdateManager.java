@@ -139,8 +139,12 @@ public class RCTUpdateManager extends ReactContextBaseJavaModule {
         if(version < android10VersionCode){
             FILE_BASE_PATH = Environment.getExternalStorageDirectory().toString() + File.separator + application.getPackageName();
         }else{
-            File path = application.getApplicationContext().getExternalFilesDir(null);
-            FILE_BASE_PATH = path.toString();
+            File filePath = application.getApplicationContext().getExternalFilesDir(null);
+            if(filePath ==  null){
+                filePath = application.getApplicationContext().getExternalFilesDir(null);
+                Log.d(TAG, filePath.toString());
+            }
+            FILE_BASE_PATH = filePath.toString();
         }
 
         // check FILE_BASE_PATH exist
