@@ -7,7 +7,7 @@ Pod::Spec.new do |spec|
   spec.homepage     = "https://github.com/oxygen-xx/react-native-code-update"
   spec.authors      = { 'Alive' => 'appreach@icloud.com' }
   spec.source       = { :git => "https://github.com/oxygen-xx/react-native-code-update.git" }
-  spec.source_files = ['ios/*', 'ios/SSZipArchive/*', 'ios/SSZipArchive/aes/*', 'ios/SSZipArchive/minizip/*']
+  spec.source_files = ['ios/*.m', 'ios/*.h', 'ios/SSZipArchive/*', 'ios/SSZipArchive/aes/*', 'ios/SSZipArchive/minizip/*']
   spec.platform     = :ios, "7.0"
   spec.dependency 'React'
 end
