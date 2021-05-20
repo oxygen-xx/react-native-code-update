@@ -64,7 +64,7 @@
 		BA1677A81E07759D00E7F9BE /* pwd2key.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pwd2key.h; sourceTree = "<group>"; };
 		BA1677A91E07759D00E7F9BE /* sha1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sha1.c; sourceTree = "<group>"; };
 		BA1677AA1E07759D00E7F9BE /* sha1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
-		BA1677AB1E07759D00E7F9BE /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
+		BA1677AB1E07759D00E7F9BE /* SSZipCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SSZipCommon.h; sourceTree = "<group>"; };
 		BA1677AE1E07759D00E7F9BE /* crypt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypt.h; sourceTree = "<group>"; };
 		BA1677AF1E07759D00E7F9BE /* ioapi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ioapi.c; sourceTree = "<group>"; };
 		BA1677B01E07759D00E7F9BE /* ioapi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ioapi.h; sourceTree = "<group>"; };
@@ -114,7 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				BA1677951E07759D00E7F9BE /* aes */,
-				BA1677AB1E07759D00E7F9BE /* Common.h */,
+				BA1677AB1E07759D00E7F9BE /* SSZipCommon.h */,
 				BA1677AD1E07759D00E7F9BE /* minizip */,
 				BA1677B71E07759D00E7F9BE /* SSZipArchive.h */,
 				BA1677B81E07759D00E7F9BE /* SSZipArchive.m */,
